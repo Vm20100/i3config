@@ -187,7 +187,7 @@ client.urgent             $rd       $gn       $yw      $active  $active
 # Start i3bar to display a workspace bar (plus the system information i3status
 # finds out, if available)
 bar {
-        status_command i3blocks
+        status_command i3blocks -c ~/.config/i3/i3blocks.conf
         position top
         strip_workspace_numbers yes
         # mode hide
@@ -214,13 +214,37 @@ bindsym $mod+$mod1+Shift+Right move container to workspace next
 bindsym $mod+$mod1+Shift+Left move container to workspace prev 
 bindsym $mod1+d exec ~/.config/i3/rofi.sh
 
+# -- Microsoft ergonomic keyboard
+
+bindcode 192 workspace 11:Top1
+bindcode 193 workspace 12:Top2
+bindcode 194 workspace 13:Top3
+bindcode 195 workspace 14:Top4
+bindcode 196 workspace 15:Top5
+
+bindcode Shift+192 move container to workspace 11:Top1
+bindcode Shift+193 move container to workspace 12:Top2
+bindcode Shift+194 move container to workspace 13:Top3
+bindcode Shift+195 move container to workspace 14:Top4
+bindcode Shift+196 move container to workspace 15:Top5
+
+bindcode $mod+180 exec --no-startup-id nautilus
+# bincode 225  # search
+bindcode $mod+163 exec --no-startup-id evolution
+
+
 # -------------- Media bindings
 
-bindsym XF86AudioRaiseVolume exec "amixer -D pulse sset Master '3%+'"
-bindsym XF86AudioLowerVolume exec "amixer -D pulse sset Master '1%-'"
-bindsym XF86AudioMute exec "amixer -D pulse set Master toggle"
+bindsym XF86AudioRaiseVolume exec pactl set-sink-volume 0 +5%
+bindsym XF86AudioLowerVolume exec pactl set-sink-volume 0 -5%
+bindsym XF86AudioMute exec pactl set-sink-mute 0 toggle
 bindsym XF86AudioMicMute exec "amixer -D pulse sset Capture toggle"
 
+# Spotify
+bindsym XF86AudioPlay exec dbus-send --print-reply --dest=org.mpris.MediaPlayer2.spotify /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.PlayPause
+bindsym XF86AudioPrev exec dbus-send --print-reply --dest=org.mpris.MediaPlayer2.spotify /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.Previous 
+bindsym XF86AudioNext exec dbus-send --print-reply --dest=org.mpris.MediaPlayer2.spotify /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.Next
+bindsym XF86AudioStop exec dbus-send --print-reply --dest=org.mpris.MediaPlayer2.spotify /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.Stop
 bindsym XF86Display exec "arandr"
 
 # -------------- Assign
@@ -269,16 +293,20 @@ exec /usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1
 exec --no-startup-id nm-applet
 exec_always feh --bg-scale /home/vincent/Pictures/.wallpaper/debian.jpeg
 
+# ------------- Script
+exec_always ~/.config/i3/monitorconf.sh start
+
 # ------------- Docking 
 
-set $mode_monitor "[d] docking , [u] undocking "
+set $mode_monitor "[d] docking , [u] undocking , [e] extended"
 set $monitor1 VGA-1
 set $monitor2 LVDS-1
 
 mode $mode_monitor {
     
-    bindsym d exec xrandr --output $monitor1 --primary --output $monitor2 --off , mode "default"
-    bindsym u exec xrandr --output $monitor2 --primary --output $monitor1 --off, mode "default"
+    bindsym d exec ~/.config/i3/monitorconf.sh docking
+    bindsym u exec ~/.config/i3/monitorconf.sh undocking
+    bindsym e exec ~/.config/i3/monitorconf.sh extended
     
      # back to normal: Enter or Escape
     bindsym Return mode "default"
